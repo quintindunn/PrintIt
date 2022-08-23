@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "id": "printit",
+  "version": "${version}",
+  "name": "PrintIt",
+  "description": "",
+  "authors": [],
+  "contact": {},
+  "license": "MIT",
+  "icon": "assets/PrintIt/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "client": [
+      "dev.quintindunn.printit.client.PrintItClient"
+    ],
+    "main": [
+      "dev.quintindunn.printit.PrintIt"
+    ]
+  },
+  "mixins": [
+    "PrintIt.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.14.9",
+    "fabric": "*",
+    "minecraft": "1.19.2"
+  }
+}
