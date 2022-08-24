@@ -6,6 +6,7 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import dev.quintindunn.printit.PrintIt;
 import dev.quintindunn.printit.util.Block;
+import net.minecraft.block.Blocks;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 
@@ -18,6 +19,20 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 public class ToStl {
+    private static boolean is_ignored_block(World world, BlockPos pos) {
+        String blockName = world.getBlockState(pos).getBlock().getName().toString();
+        if (blockName.contains("button")) return true;
+        else if (blockName.contains("glass")) return true;
+        else if (blockName.contains("lever")) return true;
+        else if (blockName.contains("pressure")) return true;
+        else if (blockName.contains("repeater")) return true;
+        else if (blockName.contains("torch")) return true;
+        else if (blockName.contains("wall")) return true;
+        else if (blockName.contains("daylight")) return true;
+        else if (blockName.contains("redstone")) return true;
+        else return false;
+    }
+
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
         dispatcher.register(literal("ToSTL")
                 .then(argument("x1", IntegerArgumentType.integer())
@@ -78,7 +93,7 @@ public class ToStl {
                     BlockPos pos = new BlockPos(x, y, z);
                     World world = context.getSource().getWorld();
                     assert World.isValid(pos);
-                    if (!world.isAir(pos) && !world.getBlockState(pos).isTranslucent(world, pos))
+                    if (!world.isAir(pos) && !is_ignored_block(world, pos))
                     {
                             content.append(new Block(x, z, y, Integer.toString(count)).get_block_stl());
                     }
@@ -98,7 +113,7 @@ public class ToStl {
             PrintIt.LOGGER.info(java.nio.file.Paths.get(".").toAbsolutePath().normalize().toString());
 
             // Open STL file
-            java.io.PrintWriter writer = new java.io.PrintWriter(".minecraft/printit/stl/" + fileName + ".stl", StandardCharsets.UTF_8);
+            java.io.PrintWriter writer = new java.io.PrintWriter("printit/" + fileName + ".stl", StandardCharsets.UTF_8);
             // Write the STL file
             writer.println(stl);
             // Close the file
