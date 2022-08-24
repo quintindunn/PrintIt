@@ -18,8 +18,8 @@ public class PrintIt implements ModInitializer {
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) ->
                 ToStl.register(dispatcher)
         );
-        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) ->
-                ToPythonList.register(dispatcher)
-        );
+//        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) ->
+//                ToPythonList.register(dispatcher)
+//        );
     }
 }

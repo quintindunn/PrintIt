@@ -2,6 +2,7 @@ package dev.quintindunn.printit.commands;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import dev.quintindunn.printit.PrintIt;
 import dev.quintindunn.printit.util.Block;
@@ -25,7 +26,8 @@ public class ToStl {
                 .then(argument("x2", IntegerArgumentType.integer())
                 .then(argument("y2", IntegerArgumentType.integer())
                 .then(argument("z2", IntegerArgumentType.integer())
-                .executes(ToStl::run))))))));
+                .then(argument("FileName", StringArgumentType.string())
+                .executes(ToStl::run)))))))));
     }
 
     private static int run(CommandContext<ServerCommandSource> context) {
@@ -39,6 +41,8 @@ public class ToStl {
         final int x2 = IntegerArgumentType.getInteger(context, "x2");
         final int y2 = IntegerArgumentType.getInteger(context, "y2");
         final int z2 = IntegerArgumentType.getInteger(context, "z2");
+
+        final String fileName = StringArgumentType.getString(context, "FileName");
 
         // Loop through all the blocks in the area accounting for negative values
 
@@ -59,13 +63,12 @@ public class ToStl {
                 }
             }
         }
-        Block[] blocks = new Block[volume];
-
         PrintIt.LOGGER.info(String.valueOf(volume));
 
         StringBuilder content = new StringBuilder();
 
         content.append("solid main\n");
+
 
         int count = 0;
         for (int x = minX; x <= maxX; x++) {
@@ -77,31 +80,33 @@ public class ToStl {
                     assert World.isValid(pos);
                     if (!world.isAir(pos) && !world.getBlockState(pos).isTranslucent(world, pos))
                     {
-                        content.append(new Block(x, z, y, Integer.toString(count)).get_block_stl());
+                            content.append(new Block(x, z, y, Integer.toString(count)).get_block_stl());
                     }
 
                 }
             }
         }
         content.append("endsolid main");
-        PrintIt.LOGGER.info("toString");
         String stl = content.toString();
 
-        PrintIt.LOGGER.info("Writing");
-
         try {
+            java.nio.file.Path path = java.nio.file.Paths.get("printit/" + fileName + ".stl");
+            // Make the folder if it doesn't exist
+            java.nio.file.Files.createDirectories(path.getParent());
+
+            // Log cwd
+            PrintIt.LOGGER.info(java.nio.file.Paths.get(".").toAbsolutePath().normalize().toString());
+
             // Open STL file
-            java.io.PrintWriter writer = new java.io.PrintWriter("C:\\Users\\T1ps\\Desktop\\printit.stl", StandardCharsets.UTF_8);
+            java.io.PrintWriter writer = new java.io.PrintWriter(".minecraft/printit/stl/" + fileName + ".stl", StandardCharsets.UTF_8);
             // Write the STL file
             writer.println(stl);
             // Close the file
             writer.close();
         } catch (IOException e) {
             e.printStackTrace();
+            context.getSource().sendFeedback(Text.literal("Error saving to file."), false);
         }
-
-
-
 
         context.getSource().sendFeedback(Text.literal("Done, wrote, " + count + " blocks."), false);
         return 0;

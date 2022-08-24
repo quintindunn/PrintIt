@@ -11,7 +11,6 @@ public class Block {
         this.z = z;
         this.identifier = identifier;
     }
-
     public String get_block_stl() {
         String content = "";
 
